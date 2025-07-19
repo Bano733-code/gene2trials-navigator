@@ -1,31 +1,42 @@
 import torch
-from transformers import pipeline
-import requests
-import xml.etree.ElementTree as ET
+from transformers import BartForConditionalGeneration, BartTokenizer
 
-summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
+# Load model and tokenizer
+model_name = "sshleifer/distilbart-cnn-12-6"
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def fetch_pubmed_abstracts(gene, max_count=3):
-    search_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term={gene}&retmax={max_count}&retmode=json"
-    ids = requests.get(search_url).json()["esearchresult"]["idlist"]
-    abstracts = []
-    for id in ids:
-        fetch_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id={id}&retmode=xml"
-        xml_data = requests.get(fetch_url).text
-        root = ET.fromstring(xml_data)
-        article = root.find(".//ArticleTitle")
-        abstract = root.find(".//AbstractText")
-        if article is not None and abstract is not None:
-            abstracts.append({"title": article.text, "abstract": abstract.text})
-    return abstracts
+tokenizer = BartTokenizer.from_pretrained(model_name)
+model = BartForConditionalGeneration.from_pretrained(model_name).to(device)
 
-def summarize_pubmed_abstracts(gene):
-    abstracts = fetch_pubmed_abstracts(gene)
-    results = []
-    for item in abstracts:
-        try:
-            summary = summarizer(item["abstract"], max_length=100, min_length=30, do_sample=False)[0]['summary_text']
-            results.append({ "title": item["title"], "summary": summary })
-        except:
-            continue
-    return results
+def chunk_text(text, max_token_length=1024):
+    """
+    Splits a long string into chunks that fit the model's max token size.
+    """
+    inputs = tokenizer.encode(text, return_tensors="pt", truncation=False)[0]
+    chunks = []
+    for i in range(0, len(inputs), max_token_length):
+        chunk = inputs[i:i + max_token_length]
+        chunks.append(chunk.unsqueeze(0))
+    return chunks
+
+def summarize_pubmed_abstracts(abstracts):
+    combined_text = " ".join(abstracts)
+
+    # Split the input into chunks of max 1024 tokens
+    input_chunks = chunk_text(combined_text)
+    summaries = []
+
+    for chunk in input_chunks:
+        chunk = chunk.to(device)
+        summary_ids = model.generate(
+            chunk,
+            max_length=130,
+            min_length=30,
+            length_penalty=2.0,
+            num_beams=4,
+            early_stopping=True
+        )
+        summary_text = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+        summaries.append(summary_text)
+
+    return " ".join(summaries)
