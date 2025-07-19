@@ -1,3 +1,7 @@
 streamlit
+requests
+pandas
 transformers
-torch
+scikit-learn
+biopython
+python-dotenv
