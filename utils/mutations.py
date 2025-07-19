@@ -8,21 +8,34 @@ def fetch_mutations(gene_symbol):
     Returns a list of mutation dictionaries.
     """
     try:
-        url = f"https://myvariant.info/v1/query?q={gene_symbol}&fields=dbsnp.rsid,clinvar.hgvs,cosmic.cosmic_id&size=20"
+        url = f"https://myvariant.info/v1/query?q=symbol:{gene_symbol}&fields=dbsnp,clinvar,cosmic&size=20"
         response = requests.get(url)
         data = response.json()
 
         results = []
-        for hit in data.get("hits", []):
+
+        hits = data.get("hits", [])
+        if not isinstance(hits, list):
+            return [{"rsid": "Error", "hgvs": "Unexpected API response", "cosmic_id": ""}]
+
+        for hit in hits:
+            dbsnp = hit.get("dbsnp", {})
+            clinvar = hit.get("clinvar", {})
+            cosmic = hit.get("cosmic", {})
+
             mutation = {
-                "rsid": hit.get("dbsnp", {}).get("rsid", "N/A") if isinstance(hit.get("dbsnp"), dict) else "N/A",
-                "hgvs": hit.get("clinvar", {}).get("hgvs", "N/A") if isinstance(hit.get("clinvar"), dict) else "N/A",
-                "cosmic_id": hit.get("cosmic", {}).get("cosmic_id", "N/A") if isinstance(hit.get("cosmic"), dict) else "N/A",
+                "rsid": dbsnp["rsid"] if isinstance(dbsnp, dict) and "rsid" in dbsnp else "N/A",
+                "hgvs": clinvar["hgvs"] if isinstance(clinvar, dict) and "hgvs" in clinvar else "N/A",
+                "cosmic_id": cosmic["cosmic_id"] if isinstance(cosmic, dict) and "cosmic_id" in cosmic else "N/A",
             }
+
             results.append(mutation)
 
-        return results if results else [{"rsid": "None found", "hgvs": "", "cosmic_id": ""}]
+        if not results:
+            results.append({"rsid": "None", "hgvs": "", "cosmic_id": ""})
+
+        return results
 
     except Exception as e:
-        print(f"Error fetching mutations: {e}")
+        print(f"Exception occurred: {e}")
         return [{"rsid": "Error", "hgvs": str(e), "cosmic_id": ""}]
