@@ -38,17 +38,17 @@ if gene:
         else:
             st.warning("No trials found for this gene.")
 
-    with tab5:
-    st.subheader("📚 AI-Summarized Research Abstracts")
+   with tab5:
+        st.subheader("📚 AI-Summarized Research Abstracts")
 
-    if abstracts:
+        if abstracts:
         # 🔧 Fix: extract only text
-        abstract_texts = [item["abstract"] for item in abstracts if "abstract" in item]
+            abstract_texts = [item["abstract"] for item in abstracts if "abstract" in item]
 
         # 🔍 Summarize abstracts
-        summary = summarize_pubmed_abstracts(abstract_texts)
+            summary = summarize_pubmed_abstracts(abstract_texts)
 
-        st.success("📝 Summary Generated:")
-        st.write(summary)
-    else:
-        st.warning("No abstracts available for this gene.")
+            st.success("📝 Summary Generated:")
+            st.write(summary)
+        else:
+            st.warning("No abstracts available for this gene.")
