@@ -1,84 +1,47 @@
 import streamlit as st
-from transformers import pipeline
+import requests
+from utils.api_fetch import get_gene_variants
+from utils.trial_fetch import get_clinical_trials
+from utils.summarizer import summarize_pubmed_abstracts
 
-# ---------------------------
-# Placeholder mock data
-# ---------------------------
-gene_to_mutations = {
-    "BRCA1": ["185delAG", "5382insC"],
-    "TP53": ["R175H", "R248Q"],
-    "EGFR": ["L858R", "T790M"],
-}
+st.set_page_config(page_title="Gene2Trials", layout="wide")
+st.title("🔬 Gene2Trials: Mutation → Drug Trial Navigator")
 
-mutation_to_diseases = {
-    "185delAG": ["Breast Cancer", "Ovarian Cancer"],
-    "5382insC": ["Breast Cancer"],
-    "R175H": ["Li-Fraumeni syndrome"],
-    "R248Q": ["Multiple cancers"],
-    "L858R": ["Lung Cancer"],
-    "T790M": ["Lung Cancer (drug resistance)"],
-}
-
-disease_to_drugs = {
-    "Breast Cancer": ["Tamoxifen", "Olaparib"],
-    "Ovarian Cancer": ["Cisplatin"],
-    "Li-Fraumeni syndrome": ["Surveillance", "PARP inhibitors"],
-    "Multiple cancers": ["Chemotherapy"],
-    "Lung Cancer": ["Gefitinib", "Erlotinib"],
-    "Lung Cancer (drug resistance)": ["Osimertinib"],
-}
-
-disease_to_trials = {
-    "Breast Cancer": [
-        "This trial investigates the efficacy of Olaparib in BRCA1 mutation carriers.",
-        "Study on the preventive impact of Tamoxifen for early-stage breast cancer."
-    ],
-    "Lung Cancer": [
-        "Trial comparing Gefitinib vs Erlotinib in EGFR mutation-positive patients."
-    ]
-}
-
-# ---------------------------
-# Load summarizer pipeline
-# ---------------------------
-summarizer = pipeline("summarization")
-
-# ---------------------------
-# Streamlit App
-# ---------------------------
-st.set_page_config(page_title="Gene2Trials: Mutation to Trials", layout="wide")
-st.title("🧬 Gene2Trials: Mutation → Drug Trial Navigator")
-
-# Input box
-gene = st.text_input("🔎 Enter a gene symbol (e.g., TP53, BRCA1, EGFR):")
+gene = st.text_input("Enter a gene symbol (e.g., TP53, BRCA1)")
 
 if gene:
-    gene = gene.upper()
-    st.subheader(f"🔍 Mutations found for {gene}")
-    mutations = gene_to_mutations.get(gene, [])
-    if mutations:
-        st.write(mutations)
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "🧬 Mutations", "🦠 Diseases", "💊 Drugs", "🧪 Clinical Trials", "📚 AI Summary"
+    ])
 
-        for mutation in mutations:
-            diseases = mutation_to_diseases.get(mutation, [])
-            for disease in diseases:
-                st.markdown(f"### 🦠 Disease: {disease}")
+    with tab1:
+        st.subheader("Gene Mutations from MyVariant.info")
+        variants = get_gene_variants(gene)
+        if variants:
+            st.write(variants)
+        else:
+            st.warning("No mutation data found.")
 
-                drugs = disease_to_drugs.get(disease, [])
-                if drugs:
-                    st.markdown(f"**💊 Drugs:** {', '.join(drugs)}")
+    with tab2:
+        st.subheader("Associated Diseases")
+        st.write("🧠 Feature coming soon via DisGeNET or OpenTargets!")
 
-                trials = disease_to_trials.get(disease, [])
-                if trials:
-                    st.markdown("**🧪 Clinical Trial Summaries:**")
-                    for i, trial_text in enumerate(trials):
-                        summary = summarizer(trial_text, max_length=50, min_length=10, do_sample=False)
-                        st.write(f"- {summary[0]['summary_text']}")
-    else:
-        st.warning("No known mutations found for this gene in our mock dataset.")
+    with tab3:
+        st.subheader("Drugs")
+        st.write("💊 You can integrate DrugBank/PharmGKB in future updates.")
 
-# ---------------------------
-# Footer
-# ---------------------------
-st.markdown("---")
-st.caption("This is a mock demo using fake data. Built with ❤️ using Streamlit and HuggingFace transformers.")
+    with tab4:
+        st.subheader("Clinical Trials from ClinicalTrials.gov")
+        trials = get_clinical_trials(gene)
+        if trials:
+            st.write(trials)
+        else:
+            st.warning("No trials found for this gene.")
+
+    with tab5:
+        st.subheader("AI-generated Research Summaries from PubMed")
+        summaries = summarize_pubmed_abstracts(gene)
+        for idx, item in enumerate(summaries):
+            st.markdown(f"**{idx+1}. {item['title']}**")
+            st.markdown(item['summary'])
+            st.markdown("---")
