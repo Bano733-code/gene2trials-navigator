@@ -1,3 +1,4 @@
+import torch
 from transformers import pipeline
 import requests
 import xml.etree.ElementTree as ET
