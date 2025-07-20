@@ -65,7 +65,17 @@ if gene_symbol:
         st.subheader("🩠 Associated Diseases")
         try:
             diseases = fetch_diseases(gene_symbol)
-            st.write(diseases)
+            if isinstance(diseases, list) and isinstance(diseases[0], dict):
+                df_disease = pd.DataFrame(diseases)
+                st.dataframe(df_disease)
+                st.download_button(
+                    label="📥 Download Diseases CSV",
+                    data=df_disease.to_csv(index=False).encode('utf-8'),
+                    file_name=f"{gene_symbol}_diseases.csv",
+                    mime="text/csv"
+                )
+            else:
+                st.write(diseases)
         except Exception as e:
             st.error(f"Error fetching diseases: {e}")
 
@@ -74,7 +84,17 @@ if gene_symbol:
         st.subheader("💊 Drugs for Mutations")
         try:
             drugs = fetch_drugs_for_gene(gene_symbol)
-            st.write(drugs)
+            if isinstance(drugs, list) and isinstance(drugs[0], dict):
+                df_drugs = pd.DataFrame(drugs)
+                st.dataframe(df_drugs)
+                st.download_button(
+                    label="📥 Download Drugs CSV",
+                    data=df_drugs.to_csv(index=False).encode('utf-8'),
+                    file_name=f"{gene_symbol}_drugs.csv",
+                    mime="text/csv"
+                )
+            else:
+                st.write(drugs)
         except Exception as e:
             st.error(f"Error fetching drugs: {e}")
 
@@ -83,7 +103,17 @@ if gene_symbol:
         st.subheader("🧪 Clinical Trials")
         try:
             trials = fetch_clinical_trials(gene_symbol)
-            st.write(trials)
+            if isinstance(trials, list) and isinstance(trials[0], dict):
+                df_trials = pd.DataFrame(trials)
+                st.dataframe(df_trials)
+                st.download_button(
+                    label="📥 Download Trials CSV",
+                    data=df_trials.to_csv(index=False).encode('utf-8'),
+                    file_name=f"{gene_symbol}_trials.csv",
+                    mime="text/csv"
+                )
+            else:
+                st.write(trials)
         except Exception as e:
             st.error(f"Error fetching trials: {e}")
 
