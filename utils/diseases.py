@@ -1,6 +1,6 @@
 import requests
 
-def fetch_diseases_via_mygene(gene_symbol):
+def fetch_diseases(gene_symbol):
     url = f"https://mygene.info/v3/query?q=symbol:{gene_symbol}&fields=disgenet"
 
     try:
