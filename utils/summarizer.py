@@ -1,42 +1,26 @@
-import torch
-from transformers import BartForConditionalGeneration, BartTokenizer
+import requests
+from transformers import pipeline
 
-# Load model and tokenizer
-model_name = "sshleifer/distilbart-cnn-12-6"
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
 
-tokenizer = BartTokenizer.from_pretrained(model_name)
-model = BartForConditionalGeneration.from_pretrained(model_name).to(device)
+def fetch_pubmed_abstracts(gene_symbol, max_results=3):
+    base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
+    search_url = f"{base_url}esearch.fcgi?db=pubmed&term={gene_symbol}&retmax={max_results}&retmode=json"
+    search_res = requests.get(search_url).json()
 
-def chunk_text(text, max_token_length=1024):
-    """
-    Splits a long string into chunks that fit the model's max token size.
-    """
-    inputs = tokenizer.encode(text, return_tensors="pt", truncation=False)[0]
-    chunks = []
-    for i in range(0, len(inputs), max_token_length):
-        chunk = inputs[i:i + max_token_length]
-        chunks.append(chunk.unsqueeze(0))
-    return chunks
+    ids = search_res.get("esearchresult", {}).get("idlist", [])
+    if not ids:
+        return []
 
-def summarize_pubmed_abstracts(abstracts):
-    combined_text = " ".join(abstracts)
+    id_str = ",".join(ids)
+    fetch_url = f"{base_url}efetch.fcgi?db=pubmed&id={id_str}&retmode=json&rettype=abstract"
+    abstracts = requests.get(fetch_url).text.split("\n\n")
 
-    # Split the input into chunks of max 1024 tokens
-    input_chunks = chunk_text(combined_text)
-    summaries = []
+    return [{"title": f"Paper {i+1}", "abstract": abs_text.strip()} for i, abs_text in enumerate(abstracts)]
 
-    for chunk in input_chunks:
-        chunk = chunk.to(device)
-        summary_ids = model.generate(
-            chunk,
-            max_length=130,
-            min_length=30,
-            length_penalty=2.0,
-            num_beams=4,
-            early_stopping=True
-        )
-        summary_text = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
-        summaries.append(summary_text)
-
-    return " ".join(summaries)
+def summarize_text(text):
+    try:
+        summary = summarizer(text, max_length=100, min_length=30, do_sample=False)[0]["summary_text"]
+        return summary
+    except:
+        return "Summary could not be generated."
