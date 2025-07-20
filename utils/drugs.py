@@ -2,7 +2,7 @@
 
 import requests
 
-def fetch_drugs_for_mutation(mutation_id):
+def fetch_drugs_for_gene(gene_symbol):
     """
     Fetch drug information from MyChem.info using mutation rsID (e.g., 'rs121913529').
     """
