@@ -1,20 +1,24 @@
 # utils/mutations.py
-
 import requests
 
-def fetch_mutations(gene_symbol):
-    url = f"https://myvariant.info/v1/query?q={gene_symbol}&fields=dbsnp.rsid,cadd.phred,clinvar.clinsig"
+def fetch_gene_mutations(gene_symbol):
     try:
-        response = requests.get(url, timeout=10)
-        data = response.json()
-        hits = data.get("hits", [])
+        url = f"https://myvariant.info/v1/query?q=gene.symbol:{gene_symbol}&fields=dbsnp.rsid,cadd.phred,clinvar.clinsig&size=10"
+        response = requests.get(url)
+        data = response.json().get('hits', [])
+
         mutations = []
-        for hit in hits[:10]:  # Limit to 10 results
+        for entry in data:
+            rsid = entry.get('dbsnp', {}).get('rsid', 'N/A')
+            cadd_score = entry.get('cadd', {}).get('phred', 'N/A')
+            clinical_significance = entry.get('clinvar', {}).get('clinsig', 'N/A')
+
             mutations.append({
-                "rsid": hit.get("dbsnp", {}).get("rsid", "N/A"),
-                "cadd_score": hit.get("cadd", {}).get("phred", "N/A"),
-                "clinical_significance": hit.get("clinvar", {}).get("clinsig", "N/A")
+                'rsid': rsid,
+                'cadd_score': cadd_score,
+                'clinical_significance': clinical_significance
             })
+
         return mutations
     except Exception as e:
-        return [{"error": str(e)}]
+        return [{"error": f"Failed to fetch data: {str(e)}"}]
