@@ -3,39 +3,18 @@
 import requests
 
 def fetch_mutations(gene_symbol):
-    """
-    Fetch mutations for a given gene symbol using MyVariant.info API.
-    Returns a list of mutation dictionaries.
-    """
+    url = f"https://myvariant.info/v1/query?q={gene_symbol}&fields=dbsnp.rsid,cadd.phred,clinvar.clinsig"
     try:
-        url = f"https://myvariant.info/v1/query?q=symbol:{gene_symbol}&fields=dbsnp,clinvar,cosmic&size=20"
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
         data = response.json()
-
-        results = []
-
         hits = data.get("hits", [])
-        if not isinstance(hits, list):
-            return [{"rsid": "Error", "hgvs": "Unexpected API response", "cosmic_id": ""}]
-
-        for hit in hits:
-            dbsnp = hit.get("dbsnp", {})
-            clinvar = hit.get("clinvar", {})
-            cosmic = hit.get("cosmic", {})
-
-            mutation = {
-                "rsid": dbsnp["rsid"] if isinstance(dbsnp, dict) and "rsid" in dbsnp else "N/A",
-                "hgvs": clinvar["hgvs"] if isinstance(clinvar, dict) and "hgvs" in clinvar else "N/A",
-                "cosmic_id": cosmic["cosmic_id"] if isinstance(cosmic, dict) and "cosmic_id" in cosmic else "N/A",
-            }
-
-            results.append(mutation)
-
-        if not results:
-            results.append({"rsid": "None", "hgvs": "", "cosmic_id": ""})
-
-        return results
-
+        mutations = []
+        for hit in hits[:10]:  # Limit to 10 results
+            mutations.append({
+                "rsid": hit.get("dbsnp", {}).get("rsid", "N/A"),
+                "cadd_score": hit.get("cadd", {}).get("phred", "N/A"),
+                "clinical_significance": hit.get("clinvar", {}).get("clinsig", "N/A")
+            })
+        return mutations
     except Exception as e:
-        print(f"Exception occurred: {e}")
-        return [{"rsid": "Error", "hgvs": str(e), "cosmic_id": ""}]
+        return [{"error": str(e)}]
