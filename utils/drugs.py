@@ -2,29 +2,29 @@
 
 import requests
 
-def get_drugs_for_gene(gene_symbol):
+def fetch_drugs_for_mutation(mutation_id):
+    """
+    Fetch drug information from MyChem.info using mutation rsID (e.g., 'rs121913529').
+    """
+    url = f"https://mychem.info/v1/query?q=dbsnp.rsid:{mutation_id}&fields=clinvar.drug_response"
+    
     try:
-        url = f"https://myvariant.info/v1/query?q={gene_symbol}&fields=clinvar"
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
         data = response.json()
-
+        hits = data.get("hits", [])
         drugs = set()
 
-        for hit in data.get("hits", []):
-            clinvar = hit.get("clinvar", {})
-            if isinstance(clinvar, dict):
-                # Search for drug-related info in trait names or clinical significance
-                traits = clinvar.get("trait", [])
-                if isinstance(traits, list):
-                    for trait in traits:
-                        if isinstance(trait, str) and "drug" in trait.lower():
-                            drugs.add(trait)
-        
-        if not drugs:
-            # Return mock data if none found
-            return ["Tamoxifen", "Cisplatin", "Trastuzumab"]
-        else:
+        for hit in hits:
+            drug_info = hit.get("clinvar", {}).get("drug_response", [])
+            for entry in drug_info:
+                drug_name = entry.get("drug_name")
+                if drug_name:
+                    drugs.add(drug_name)
+
+        if drugs:
             return list(drugs)
+        else:
+            return ["No drug response info found."]
+    
     except Exception as e:
-        print(f"Error fetching drugs: {e}")
-        return ["No drug information available."]
+        return [f"API error: {str(e)}"]
