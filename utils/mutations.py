@@ -4,7 +4,7 @@ def fetch_mutations(gene_symbol):
     """
     Fetch mutations for a gene from MyVariant.info API using gene symbol.
     """
-    url = f"https://myvariant.info/v1/query?q={gene_symbol}&fields=dbsnp.rsid,clinvar.clinical_significance,cadd.phred"
+    url = f"https://myvariant.info/v1/query?q={gene_symbol}&fields=dbsnp.rsid,clinvar.clinical_significance,cadd.phred&size=1000"
 
     try:
         response = requests.get(url, timeout=10)
