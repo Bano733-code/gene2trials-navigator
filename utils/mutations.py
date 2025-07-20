@@ -1,7 +1,7 @@
 # utils/mutations.py
 import requests
 
-def fetch_gene_mutations(gene_symbol):
+def fetch_mutations(gene_symbol):
     try:
         url = f"https://myvariant.info/v1/query?q=gene.symbol:{gene_symbol}&fields=dbsnp.rsid,cadd.phred,clinvar.clinsig&size=10"
         response = requests.get(url)
