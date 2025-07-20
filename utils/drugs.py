@@ -2,7 +2,7 @@
 
 import requests
 
-def fetch_drugs_for_gene(mutation_id):
+def fetch_drugs(mutation_id):
     """
     Fetch drug response info from MyChem.info using dbSNP rsID (e.g., 'rs121913529').
     """
