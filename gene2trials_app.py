@@ -1,15 +1,21 @@
+# gene2trials_app.py
+
 import streamlit as st
 from utils.mutations import fetch_mutations
 from utils.diseases import fetch_diseases
-from utils.drugs import fetch_drugs
-from utils.trials import fetch_trials
+from utils.drugs import fetch_drugs_for_gene
+from utils.trials import fetch_clinical_trials
 from utils.summarizer import summarize_pubmed_abstracts
 
-st.set_page_config(page_title="Gene2Trials: Mutation → Drug Trial Navigator", layout="wide")
+st.set_page_config(page_title="Gene2Trials Navigator", layout="wide")
 st.title("🧬 Gene2Trials: Mutation → Drug Trial Navigator")
 
-# Input field
-gene_symbol = st.text_input("Enter Gene Symbol (e.g., TP53, BRCA1)", value="TP53")
+st.markdown("""
+Enter a gene symbol (e.g., TP53, BRCA1) to explore associated mutations, diseases,
+drugs, clinical trials, and AI-generated research summaries.
+""")
+
+gene_symbol = st.text_input("🔍 Enter Gene Symbol:", "TP53")
 
 if gene_symbol:
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
@@ -17,58 +23,42 @@ if gene_symbol:
 
     with tab1:
         st.subheader("🧬 Gene Mutations")
-        mutations = fetch_mutations(gene_symbol)
-        if mutations:
-            for mut in mutations:
-                st.markdown(f"- {mut}")
-        else:
-            st.warning("No mutation data found.")
+        try:
+            mutations = fetch_mutations(gene_symbol)
+            st.write(mutations)
+        except Exception as e:
+            st.error(f"Error fetching mutations: {e}")
 
     with tab2:
-        st.subheader("🦠 Associated Diseases")
-        diseases = fetch_diseases(gene_symbol)
-        if diseases:
-            for d in diseases:
-                st.markdown(f"- {d}")
-        else:
-            st.warning("No disease associations found.")
+        st.subheader("🩠 Associated Diseases")
+        try:
+            diseases = fetch_diseases(gene_symbol)
+            st.write(diseases)
+        except Exception as e:
+            st.error(f"Error fetching diseases: {e}")
 
     with tab3:
-        st.subheader("💊 Drugs Targeting This Gene")
-        drugs = fetch_drugs(gene_symbol)
-        if drugs:
-            for drug in drugs:
-                st.markdown(f"- {drug}")
-        else:
-            st.warning("No drugs found.")
+        st.subheader("💊 Drugs for Mutations")
+        try:
+            drugs = fetch_drugs_for_gene(gene_symbol)
+            st.write(drugs)
+        except Exception as e:
+            st.error(f"Error fetching drugs: {e}")
 
     with tab4:
         st.subheader("🧪 Clinical Trials")
-        trials = fetch_trials(gene_symbol)
-        if trials:
-            for trial in trials:
-                st.markdown(f"- [{trial['title']}]({trial['url']})")
-        else:
-            st.warning("No clinical trials found.")
+        try:
+            trials = fetch_clinical_trials(gene_symbol)
+            st.write(trials)
+        except Exception as e:
+            st.error(f"Error fetching trials: {e}")
 
     with tab5:
-        st.subheader("📚 AI-Generated PubMed Summaries")
-        abstracts = summarize_pubmed_abstracts(gene_symbol)
-
-        if not abstracts:
-            st.warning("No summaries available for this gene.")
-        else:
-            for idx, item in enumerate(abstracts):
-                st.markdown(f"### {idx + 1}. Summary")
-
-                if isinstance(item, dict):
-                    if 'title' in item:
-                        st.markdown(f"**📝 Title:** {item['title']}")
-                    if 'abstract' in item:
-                        st.markdown(f"**📄 Abstract:** {item['abstract']}")
-                    else:
-                        st.markdown("Abstract not available.")
-                elif isinstance(item, str):
-                    st.write(item)
-                else:
-                    st.warning("Unsupported abstract format.")
+        st.subheader("📚 Research Summaries")
+        try:
+            summaries = summarize_pubmed_abstracts(gene_symbol)
+            for idx, item in enumerate(summaries):
+                st.markdown(f"**{idx+1}. {item['title']}**")
+                st.markdown(item['summary'])
+        except Exception as e:
+            st.error(f"Error generating summaries: {e}")
