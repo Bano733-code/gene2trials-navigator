@@ -2,9 +2,9 @@
 
 import requests
 
-def fetch_drugs_for_gene(gene_symbol):
+def fetch_drugs_for_gene(mutation_id):
     """
-    Fetch drug information from MyChem.info using mutation rsID (e.g., 'rs121913529').
+    Fetch drug response info from MyChem.info using dbSNP rsID (e.g., 'rs121913529').
     """
     url = f"https://mychem.info/v1/query?q=dbsnp.rsid:{mutation_id}&fields=clinvar.drug_response"
     
