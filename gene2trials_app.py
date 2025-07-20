@@ -29,7 +29,7 @@ if gene_symbol:
         try:
             mutations = fetch_mutations(gene_symbol)
 
-            if isinstance(mutations, list) and isinstance(mutations[0], dict):
+            if isinstance(mutations, list) and mutations and isinstance(mutations[0], dict):
                 df_mut = pd.DataFrame(mutations)
                 st.dataframe(df_mut)
 
