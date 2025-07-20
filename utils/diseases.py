@@ -1,22 +1,31 @@
 import requests
 
 def fetch_diseases(gene_symbol):
-    url = f"https://mygene.info/v3/query?q=symbol:{gene_symbol}&fields=disgenet"
-
+    """
+    Fetch phenotype/disease associations for a gene using Ensembl REST API.
+    """
+    url = f"https://rest.ensembl.org/phenotype/gene/homo_sapiens/{gene_symbol}?content-type=application/json"
     try:
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, headers={"Content-Type": "application/json"})
+        response.raise_for_status()
         data = response.json()
-        hits = data.get("hits", [])
+
+        if not data:
+            return [{"disease": "No disease associations found"}]
 
         diseases = []
-        for hit in hits:
-            disgenet = hit.get("disgenet", {})
-            if isinstance(disgenet, dict):
-                disease = disgenet.get("disease_name")
-                if disease:
-                    diseases.append(disease)
+        for item in data:
+            disease_name = item.get("phenotype_description", "N/A")
+            source = item.get("source", "N/A")
+            external_id = item.get("external_id", "N/A")
 
-        return diseases if diseases else ["No diseases found."]
-    
+            diseases.append({
+                "disease": disease_name,
+                "source": source,
+                "external_id": external_id
+            })
+
+        return diseases
+
     except Exception as e:
-        return [f"API error: {str(e)}"]
+        return [{"disease": f"Error: {str(e)}"}]
