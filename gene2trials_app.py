@@ -1,3 +1,5 @@
+# gene2trials_app.py
+
 import streamlit as st
 import pandas as pd
 
@@ -21,26 +23,29 @@ if gene_symbol:
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "Gene Mutations", "Associated Diseases", "Drugs", "Clinical Trials", "Research Summaries"])
 
-    # 🔹 Tab 1: Gene Mutations
+    # 🧬 GENE MUTATIONS TAB
     with tab1:
         st.subheader("🧬 Gene Mutations")
         try:
             mutations = fetch_mutations(gene_symbol)
-            st.dataframe(mutations)
 
-            # ✅ Export to CSV
             if isinstance(mutations, list) and isinstance(mutations[0], dict):
                 df_mut = pd.DataFrame(mutations)
+                st.dataframe(df_mut)
+
                 st.download_button(
                     label="📥 Download Mutations CSV",
                     data=df_mut.to_csv(index=False).encode('utf-8'),
                     file_name=f"{gene_symbol}_mutations.csv",
                     mime="text/csv"
                 )
+            else:
+                st.write(mutations)
+
         except Exception as e:
             st.error(f"Error fetching mutations: {e}")
 
-    # 🔹 Tab 2: Associated Diseases
+    # 🩠 ASSOCIATED DISEASES TAB
     with tab2:
         st.subheader("🩠 Associated Diseases")
         try:
@@ -49,7 +54,7 @@ if gene_symbol:
         except Exception as e:
             st.error(f"Error fetching diseases: {e}")
 
-    # 🔹 Tab 3: Drugs for Mutations
+    # 💊 DRUGS TAB
     with tab3:
         st.subheader("💊 Drugs for Mutations")
         try:
@@ -58,7 +63,7 @@ if gene_symbol:
         except Exception as e:
             st.error(f"Error fetching drugs: {e}")
 
-    # 🔹 Tab 4: Clinical Trials
+    # 🧪 CLINICAL TRIALS TAB
     with tab4:
         st.subheader("🧪 Clinical Trials")
         try:
@@ -67,7 +72,7 @@ if gene_symbol:
         except Exception as e:
             st.error(f"Error fetching trials: {e}")
 
-    # 🔹 Tab 5: Research Summaries
+    # 📚 RESEARCH SUMMARIES TAB
     with tab5:
         st.subheader("📚 Research Summaries")
         try:
