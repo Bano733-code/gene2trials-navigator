@@ -5,7 +5,7 @@ from utils.mutations import fetch_mutations
 from utils.diseases import fetch_diseases
 from utils.drugs import fetch_drugs_for_gene
 from utils.trials import fetch_clinical_trials
-from utils.lit_summary import fetch_pubmed_abstracts, summarize_text
+from utils.summarizer import fetch_pubmed_abstracts, summarize_text
 
 st.set_page_config(page_title="Gene2Trials Navigator", layout="wide")
 st.title("🧬 Gene2Trials: Mutation → Drug Trial Navigator")
