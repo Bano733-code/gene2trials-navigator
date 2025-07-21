@@ -1,9 +1,24 @@
 import requests
 
-def fetch_diseases(gene_symbol):
+def fetch_diseases(gene_symbol, max_articles=10):
     try:
-        url = f"https://www.ncbi.nlm.nih.gov/research/pubtator-api/publications/export/biocjson?concepts=gene:{gene_symbol}&format=json"
-        response = requests.get(url)
+        # Step 1: Search PubTator for PMIDs related to the gene
+        search_url = f"https://www.ncbi.nlm.nih.gov/research/pubtator-api/publications/search?q={gene_symbol}&page=1"
+        res = requests.get(search_url)
+        res.raise_for_status()
+        search_results = res.json()
+        pmids = [str(p["pmid"]) for p in search_results.get("results", [])[:max_articles]]
+
+        if not pmids:
+            return [{"disease": "No related publications found for gene."}]
+
+        # Step 2: Get annotated concepts for those PMIDs
+        annotate_url = "https://www.ncbi.nlm.nih.gov/research/pubtator-api/publications/export/biocjson"
+        response = requests.post(
+            annotate_url,
+            headers={"Content-Type": "application/json"},
+            json={"pmids": pmids}
+        )
         response.raise_for_status()
         data = response.json()
 
@@ -19,7 +34,7 @@ def fetch_diseases(gene_symbol):
                         seen.add(disease_name)
 
         if not diseases:
-            return [{"disease": "No diseases found for this gene"}]
+            return [{"disease": "No diseases found for this gene in recent literature"}]
         return diseases
 
     except Exception as e:
