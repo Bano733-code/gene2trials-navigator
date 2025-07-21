@@ -1,8 +1,6 @@
-import requests
 def fetch_diseases(gene_symbol):
-    """
-    Fetch disease associations for a gene using Open Targets API.
-    """
+    import requests
+
     try:
         # Step 1: Convert gene symbol to Ensembl ID
         lookup_url = f"https://rest.ensembl.org/lookup/symbol/homo_sapiens/{gene_symbol}?content-type=application/json"
@@ -13,24 +11,44 @@ def fetch_diseases(gene_symbol):
         if not ensembl_id:
             return [{"disease": f"Gene ID not found for {gene_symbol}"}]
 
-        # Step 2: Fetch diseases using Open Targets API
-        ot_url = f"https://api.platform.opentargets.org/v3/platform/public/association/filter?target={ensembl_id}"
-        ot_response = requests.get(ot_url)
-        ot_response.raise_for_status()
-        data = ot_response.json().get("data", [])
+        # Step 2: Fetch diseases using GraphQL
+        gql_url = "https://api.platform.opentargets.org/api/v4/graphql"
+        query = """
+        query($ensemblId: String!) {
+          target(ensemblId: $ensemblId) {
+            associatedDiseases {
+              rows {
+                disease {
+                  name
+                  id
+                }
+                associationScore {
+                  overall
+                }
+              }
+            }
+          }
+        }
+        """
+        variables = {"ensemblId": ensembl_id}
+        headers = {"Content-Type": "application/json"}
+        gql_response = requests.post(gql_url, json={"query": query, "variables": variables}, headers=headers)
+        gql_response.raise_for_status()
 
-        if not data:
+        rows = gql_response.json()["data"]["target"]["associatedDiseases"]["rows"]
+
+        if not rows:
             return [{"disease": "No disease associations found"}]
 
         diseases = []
-        for item in data:
-            disease = item.get("disease", {}).get("name", "N/A")
-            score = item.get("association_score", {}).get("overall", "N/A")
-            datasource = item.get("disease", {}).get("id", "N/A")
+        for item in rows:
+            disease_name = item["disease"]["name"]
+            disease_id = item["disease"]["id"]
+            score = item["associationScore"]["overall"]
             diseases.append({
-                "disease": disease,
+                "disease": disease_name,
                 "score": round(score, 3) if isinstance(score, float) else "N/A",
-                "source": datasource
+                "source": disease_id
             })
 
         return diseases
