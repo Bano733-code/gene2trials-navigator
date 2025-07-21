@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import requests
 
 from utils.mutations import fetch_mutations
 from utils.diseases import fetch_diseases
