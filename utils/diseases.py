@@ -1,3 +1,4 @@
+import requests
 def fetch_diseases(gene_symbol):
     """
     Fetch disease associations for a gene using Open Targets API.
