@@ -1,6 +1,6 @@
 import requests
 
-def fetch_drugs(gene_symbol):
+def fetch_drugs_for_gene(gene_symbol):
     try:
         # Step 1: Search for PubMed articles related to the gene
         search_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
