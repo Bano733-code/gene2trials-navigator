@@ -8,6 +8,28 @@ from utils.drugs import fetch_drugs_for_gene
 from utils.trials import fetch_clinical_trials
 from utils.summarizer import fetch_pubmed_abstracts, summarize_text
 
+def fetch_drugs_for_gene(gene):
+    try:
+        url = f"https://api.pharmebiomarkers.org/drug/gene/{gene}"
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+
+        if not data:
+            return f"No drug data found for {gene}."
+
+        return [
+            {
+                "drug": item.get("drug_name", "N/A"),
+                "evidence": item.get("evidence_level", "N/A"),
+                "cancer_type": item.get("cancer_type", "N/A")
+            }
+            for item in data
+        ]
+
+    except Exception as e:
+        return f"Error fetching drugs: {e}"
+
 st.set_page_config(page_title="Gene2Trials Navigator", layout="wide")
 st.title("🧬 Gene2Trials: Mutation → Drug Trial Navigator")
 
