@@ -1,41 +1,53 @@
 import requests
 
-def fetch_diseases(gene_symbol, max_articles=10):
+def fetch_diseases(gene_symbol):
     try:
-        # Step 1: Search PubTator for PMIDs related to the gene
-        search_url = f"https://www.ncbi.nlm.nih.gov/research/pubtator-api/publications/search?q={gene_symbol}&page=1"
-        res = requests.get(search_url)
-        res.raise_for_status()
-        search_results = res.json()
-        pmids = [str(p["pmid"]) for p in search_results.get("results", [])[:max_articles]]
+        # Step 1: Get PMIDs from PubMed
+        esearch_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
+        params = {
+            "db": "pubmed",
+            "term": gene_symbol,
+            "retmode": "json",
+            "retmax": 10  # You can increase this if needed
+        }
+        search_response = requests.get(esearch_url, params=params)
+        search_response.raise_for_status()
+        id_list = search_response.json()['esearchresult']['idlist']
 
-        if not pmids:
-            return [{"disease": "No related publications found for gene."}]
+        if not id_list:
+            return [{"disease": "No articles found for this gene"}]
 
-        # Step 2: Get annotated concepts for those PMIDs
-        annotate_url = "https://www.ncbi.nlm.nih.gov/research/pubtator-api/publications/export/biocjson"
-        response = requests.post(
-            annotate_url,
-            headers={"Content-Type": "application/json"},
-            json={"pmids": pmids}
-        )
-        response.raise_for_status()
-        data = response.json()
+        # Step 2: Get annotations from PubTator
+        pubtator_url = "https://www.ncbi.nlm.nih.gov/research/pubtator-api/publications/export/biocjson"
+        headers = {"Content-Type": "application/json"}
+        params = {"pmids": ",".join(id_list)}
+        pubtator_response = requests.get(pubtator_url, params=params, headers=headers)
+        pubtator_response.raise_for_status()
+        data = pubtator_response.json()
 
+        # Step 3: Extract diseases from PubTator annotations
         diseases = []
         seen = set()
-
         for doc in data.get("documents", []):
-            for ann in doc.get("annotations", []):
-                if ann["infons"].get("type") == "Disease":
-                    disease_name = ann["text"]
-                    if disease_name not in seen:
-                        diseases.append({"disease": disease_name})
-                        seen.add(disease_name)
+            pmid = doc.get("id", "N/A")
+            for passage in doc.get("passages", []):
+                for anno in passage.get("annotations", []):
+                    if anno.get("infons", {}).get("type") == "Disease":
+                        disease_name = anno.get("text", "N/A")
+                        disease_id = anno.get("infons", {}).get("identifier", "N/A")
+                        key = (disease_name, disease_id)
+                        if key not in seen:
+                            seen.add(key)
+                            diseases.append({
+                                "disease": disease_name,
+                                "source": disease_id,
+                                "pmid": pmid
+                            })
 
         if not diseases:
-            return [{"disease": "No diseases found for this gene in recent literature"}]
+            return [{"disease": "No disease mentions found in PubTator for this gene"}]
+
         return diseases
 
     except Exception as e:
-        return [{"disease": f"Error fetching diseases: {e}"}]
+        return [{"disease": f"Error fetching diseases: {str(e)}"}]
