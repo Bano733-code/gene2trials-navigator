@@ -8,7 +8,6 @@ from utils.drugs import fetch_drugs_for_gene
 from utils.trials import fetch_clinical_trials
 from utils.summarizer import fetch_pubmed_abstracts, summarize_text
 
-
 st.set_page_config(page_title="Gene2Trials Navigator", layout="wide")
 st.title("🧬 Gene2Trials: Mutation → Drug Trial Navigator")
 
@@ -23,9 +22,9 @@ if gene_symbol:
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "Gene Mutations", "Associated Diseases", "Drugs", "Clinical Trials", "Research Summaries"])
 
-    # 🧬 GENE MUTATIONS TAB
+    # 🦠 GENE MUTATIONS TAB
     with tab1:
-        st.subheader("🧬 Gene Mutations")
+        st.subheader("🦠 Gene Mutations")
 
         try:
             mutations = fetch_mutations(gene_symbol)
@@ -51,7 +50,7 @@ if gene_symbol:
                 st.dataframe(df_mut)
 
                 st.download_button(
-                    label="📥 Download Mutations CSV",
+                    label="📅 Download Mutations CSV",
                     data=df_mut.to_csv(index=False).encode('utf-8'),
                     file_name=f"{gene_symbol}_mutations.csv",
                     mime="text/csv"
@@ -62,16 +61,16 @@ if gene_symbol:
         except Exception as e:
             st.error(f"Error fetching mutations: {e}")
 
-    # 🩠 ASSOCIATED DISEASES TAB
+    # �� ASSOCIATED DISEASES TAB
     with tab2:
-        st.subheader("🩠 Associated Diseases")
+        st.subheader("�� Associated Diseases")
         try:
             diseases = fetch_diseases(gene_symbol)
             if isinstance(diseases, list) and isinstance(diseases[0], dict):
                 df_disease = pd.DataFrame(diseases)
                 st.dataframe(df_disease)
                 st.download_button(
-                    label="📥 Download Diseases CSV",
+                    label="📅 Download Diseases CSV",
                     data=df_disease.to_csv(index=False).encode('utf-8'),
                     file_name=f"{gene_symbol}_diseases.csv",
                     mime="text/csv"
@@ -90,7 +89,7 @@ if gene_symbol:
                 df_drugs = pd.DataFrame(drugs)
                 st.dataframe(df_drugs)
                 st.download_button(
-                    label="📥 Download Drugs CSV",
+                    label="📅 Download Drugs CSV",
                     data=df_drugs.to_csv(index=False).encode('utf-8'),
                     file_name=f"{gene_symbol}_drugs.csv",
                     mime="text/csv"
@@ -100,16 +99,16 @@ if gene_symbol:
         except Exception as e:
             st.error(f"Error fetching drugs: {e}")
 
-    # 🧪 CLINICAL TRIALS TAB
+    # 🤪 CLINICAL TRIALS TAB
     with tab4:
-        st.subheader("🧪 Clinical Trials")
+        st.subheader("🤪 Clinical Trials")
         try:
             trials = fetch_clinical_trials(gene_symbol)
             if isinstance(trials, list) and isinstance(trials[0], dict):
                 df_trials = pd.DataFrame(trials)
                 st.dataframe(df_trials)
                 st.download_button(
-                    label="📥 Download Trials CSV",
+                    label="📅 Download Trials CSV",
                     data=df_trials.to_csv(index=False).encode('utf-8'),
                     file_name=f"{gene_symbol}_trials.csv",
                     mime="text/csv"
