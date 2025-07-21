@@ -1,26 +1,44 @@
+
+# 📁 utils/summarizer.py
 import requests
-from transformers import pipeline
 
-summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
+def fetch_pubmed_abstracts(gene_symbol):
+    try:
+        url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term={gene_symbol}&retmode=json&retmax=5"
+        ids = requests.get(url).json()['esearchresult']['idlist']
 
-def fetch_pubmed_abstracts(gene_symbol, max_results=3):
-    base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
-    search_url = f"{base_url}esearch.fcgi?db=pubmed&term={gene_symbol}&retmax={max_results}&retmode=json"
-    search_res = requests.get(search_url).json()
+        efetch_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+        efetch_params = {
+            "db": "pubmed",
+            "id": ",".join(ids),
+            "retmode": "xml"
+        }
+        xml_data = requests.get(efetch_url, params=efetch_params).text
 
-    ids = search_res.get("esearchresult", {}).get("idlist", [])
-    if not ids:
-        return []
+        from xml.etree import ElementTree as ET
+        root = ET.fromstring(xml_data)
 
-    id_str = ",".join(ids)
-    fetch_url = f"{base_url}efetch.fcgi?db=pubmed&id={id_str}&retmode=json&rettype=abstract"
-    abstracts = requests.get(fetch_url).text.split("\n\n")
+        abstracts = []
+        for article in root.findall(".//PubmedArticle"):
+            title = article.findtext(".//ArticleTitle") or ""
+            abstract = article.findtext(".//AbstractText") or ""
+            abstracts.append({"title": title, "abstract": abstract})
 
-    return [{"title": f"Paper {i+1}", "abstract": abs_text.strip()} for i, abs_text in enumerate(abstracts)]
+        return abstracts
+    except Exception as e:
+        return [{"title": "Error", "abstract": str(e)}]
+
 
 def summarize_text(text):
     try:
-        summary = summarizer(text, max_length=100, min_length=30, do_sample=False)[0]["summary_text"]
+        api_url = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
+        headers = {"Authorization": "Bearer YOUR_HUGGINGFACE_API_KEY"}
+        payload = {"inputs": text}
+
+        res = requests.post(api_url, headers=headers, json=payload)
+        res.raise_for_status()
+
+        summary = res.json()[0]['summary_text']
         return summary
-    except:
-        return "Summary could not be generated."
+    except Exception as e:
+        return f"Error summarizing text: {e}"
