@@ -1,21 +1,26 @@
-📁 utils/drugs.py
 import requests
 
 def fetch_drugs_for_gene(gene_symbol):
     try:
-        url = f"https://api.pharmgkb.org/v1/data/gene?name={gene_symbol}"
-        headers = {"Accept": "application/json"}
-        res = requests.get(url, headers=headers)
+        url = f"https://dgidb.org/api/v2/interactions.json?genes={gene_symbol}"
+        res = requests.get(url)
         res.raise_for_status()
 
-        gene_data = res.json()
+        data = res.json()
+        interactions = data.get("matchedTerms", [])[0].get("interactions", [])
+
+        if not interactions:
+            return [{"drug": "No drug interactions found.", "source": "DGIdb"}]
+
         drugs = []
-        for rel in gene_data.get("relatedDrugs", []):
+        for item in interactions:
             drugs.append({
-                "drug": rel.get("name", "N/A"),
-                "pharmgkb_id": rel.get("@id", "N/A")
+                "drug": item.get("drugName", "N/A"),
+                "interaction_type": item.get("interactionTypes", ["N/A"])[0],
+                "source": item.get("sources", ["N/A"])[0]
             })
 
-        return drugs or ["No drug associations found."]
+        return drugs
+
     except Exception as e:
-        return f"Error fetching drugs: {e}"
+        return [{"drug": f"Error fetching drugs: {e}"}]
