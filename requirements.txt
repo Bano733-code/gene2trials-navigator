@@ -6,3 +6,6 @@ scikit-learn
 biopython
 python-dotenv
 torch
+pytrials
+streamlit-aggrid
+tabulate
