@@ -27,12 +27,11 @@ def fetch_pubmed_abstracts(gene_symbol):
         return abstracts
     except Exception as e:
         return [{"title": "Error", "abstract": str(e)}]
-
-
+import os
 def summarize_text(text):
     try:
         api_url = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
-        headers = {"Authorization": "Bearer YOUR_HUGGINGFACE_API_KEY"}
+        headers = {"Authorization": f"Bearer {os.environ['HF_API_TOKEN']}"}
         payload = {"inputs": text}
 
         res = requests.post(api_url, headers=headers, json=payload)
