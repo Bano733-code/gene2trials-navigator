@@ -94,43 +94,7 @@ def fetch_from_chembl(gene_symbol: str) -> pd.DataFrame:
 
     except Exception as e:
         print(f"[ChEMBL] Error fetching for {gene_symbol}: {e}")
-        return pd.DataFrame()
-
-def fetch_from_dgidb(gene_symbol: str) -> pd.DataFrame:
-    url = f"https://dgidb.org/api/v3/interactions.json?genes={gene_symbol}"
-    try:
-        resp = requests.get(url, headers=DEFAULT_HEADERS, timeout=20)
-        resp.raise_for_status()
-        data = resp.json()
-
-        rows = []
-        for match in data.get("matchedTerms", []):
-            for interaction in match.get("interactions", []):
-                drug_name = interaction.get("drugName", "")
-                chembl_id = interaction.get("drugChemblId", "")
-                interaction_types = interaction.get("interactionTypes", [])
-                mech = interaction_types[0] if interaction_types else "N/A"
-                rows.append({
-                    "Drug": drug_name,
-                    "ID": f"[{chembl_id}](https://www.ebi.ac.uk/chembl/compound_report_card/{chembl_id}/)" if chembl_id else "",
-                    "Mechanism": mech,
-                    "Approval": interaction.get("approvalStatus", "Unknown"),
-                    "Source": "DGIdb",
-                })
-
-        if not rows and gene_symbol in FALLBACK_DRUGS:
-            rows.extend(FALLBACK_DRUGS[gene_symbol])
-
-        return pd.DataFrame(rows)
-
-    except Exception as e:
-        print(f"[DGIdb] Error fetching for {gene_symbol}: {e}")
-        if gene_symbol in FALLBACK_DRUGS:
-            return pd.DataFrame(FALLBACK_DRUGS[gene_symbol])
-        return pd.DataFrame()
-
-
-
+        return pd.DataFrame()    
 # ---------- Open Targets ----------
 def _ot_map_symbol_to_ensembl(gene_symbol: str) -> Optional[str]:
     """
@@ -252,11 +216,6 @@ def fetch_drugs_for_gene(gene_symbol: str) -> pd.DataFrame:
         df_ot = fetch_from_opentargets(gene_symbol)
         if df_ot is not None and not df_ot.empty:
             dfs.append(df_ot)
-
-        # DGIdb
-        df_dgidb = fetch_from_dgidb(gene_symbol)
-        if df_dgidb is not None and not df_dgidb.empty:
-            dfs.append(df_dgidb)
 
         # Fallback (DrugBank-curated)
         if not dfs and gene_symbol.upper() in FALLBACK_DRUGS:
