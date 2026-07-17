@@ -61,7 +61,9 @@ gene2trials-navigator/
 ## 🤝 Contributing
 
 PRs are welcome! If you find a bug, please open an issue.
-https://huggingface.co/spaces/bano1/gene2trials-navigator
+
+https://github.com/Bano733-code/gene2trials-navigator
+
 ## 📦 Installation
 ```bash
 git clone https://github.com/Bano733-code/gene2trials-navigator.git
