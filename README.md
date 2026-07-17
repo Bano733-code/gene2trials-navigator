@@ -39,18 +39,26 @@ Navigate tabs:
 📝 Summaries
 Click on IDs to open external references.
 
-📂 Project Structure
+## 📂 Project Structure
+
+```text
 gene2trials-navigator/
-│── app.py              # Main Streamlit app
-│── utils/
-│    ├── mutations.py   # MyVariant/ClinVar fetch
-│    ├── diseases.py    # Disease associations
-│    ├── drugs.py       # ChEMBL fetch
-│    ├── trials.py      # ClinicalTrials.gov fetch
-│    └── summaries.py   # PubMed summarization
-│── requirements.txt
-│── README.md
-🤝 Contributing
+│
+├── app.py                         # Main Streamlit application
+│
+├── utils/
+│   ├── mutations.py               # MyVariant & ClinVar mutation retrieval
+│   ├── diseases.py                # Disease association analysis
+│   ├── drugs.py                   # ChEMBL drug information retrieval
+│   ├── trials.py                  # ClinicalTrials.gov trial search
+│   └── summaries.py               # PubMed research paper summarization
+│
+├── requirements.txt               # Python dependencies
+│
+└── README.md                      # Project documentation
+```
+
+## 🤝 Contributing
 
 PRs are welcome! If you find a bug, please open an issue.
 https://huggingface.co/spaces/bano1/gene2trials-navigator
