@@ -60,9 +60,32 @@ gene2trials-navigator/
 
 ## 🤝 Contributing
 
-PRs are welcome! If you find a bug, please open an issue.
+Contributions are welcome!  
 
-https://github.com/Bano733-code/gene2trials-navigator
+If you would like to improve Gene2Trials Navigator:
+
+1. Fork the repository
+2. Create a new feature branch
+
+```bash
+git checkout -b feature-name
+```
+
+3. Commit your changes
+
+```bash
+git commit -m "Add new feature"
+```
+
+4. Push the branch
+
+```bash
+git push origin feature-name
+```
+
+5. Open a Pull Request
+
+Please ensure your code follows clean structure and includes proper documentation.
 
 ## 📦 Installation
 ```bash
