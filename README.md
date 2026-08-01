@@ -18,7 +18,7 @@
 
 Given a single gene of interest, the platform integrates multiple biomedical databases to identify:
 
-- 🧬 Gene information
+- 🧬 Gene Mutations
 - 🦠 Associated diseases
 - 💊 Potential drug candidates
 - 🧪 Clinical trial evidence
@@ -33,6 +33,8 @@ The goal is to accelerate early-stage drug discovery and biomedical research by 
 ```
 Gene
   ↓
+Gene Mutations
+  ↓
 Disease Association
   ↓
 Drug Candidates
@@ -43,20 +45,6 @@ Scientific Literature
   ↓
 AI-Assisted Interpretation
 ```
-
----
-
-## 🏗️ System Architecture
-
-![System_Architecture](images/architecture.jpg)
-
----
-
-## ⚙️ Workflow
-
-![Workflow](images/workflow.jpg)
-
----
 
 ## ✨ Key Features
 
@@ -70,7 +58,15 @@ Accepts a gene symbol (e.g. `TP53`), converts it into an Ensembl identifier, and
 
 ---
 
-### 🦠 2. Disease Association Analysis
+### 🧬 2. Gene Mutation Information
+
+Provides mutation-level details for the selected gene, including known variants, mutation types, and their clinical/functional significance.
+
+![Mutations Tab](images/mutations.png)
+
+---
+
+### 🦠 3. Disease Association Analysis
 
 Identifies diseases associated with the selected gene, along with disease identifiers and association evidence scores.
 
@@ -88,7 +84,7 @@ TP53
 
 ---
 
-### 💊 3. Drug Discovery Module
+### 💊 4. Drug Discovery Module
 
 Retrieves therapeutic candidates linked to the gene via biomedical databases.
 
@@ -108,7 +104,7 @@ Clinical Development Stage
 
 ---
 
-### 🧪 4. Clinical Trial Integration
+### 🧪 5. Clinical Trial Integration
 
 Integrates clinical trial information, including trial identifiers, study phases, trial status, and therapeutic evidence.
 
@@ -118,7 +114,7 @@ Integrates clinical trial information, including trial identifiers, study phases
 
 ---
 
-### 🤖 5. AI-Assisted Biomedical Interpretation 
+### 🤖 6. AI-Assisted Biomedical Interpretation 
 
 AI research summaries include:
 
@@ -162,15 +158,17 @@ Gene2Trials/
 │
 ├── images/
 │   ├── hero_banner.png
-│   ├── architecture.png
-│   ├── workflow.png
+│   ├── architecture.jpg
+│   ├── workflow.jpg
 │   ├── gene_tab.png
+|   ├── mutations.png
 │   ├── disease.png
 │   ├── drugs.png
 │   ├── trials.png
 │   └── ai_summary.png
 │
 └── utils/
+    ├── mutations.py
     ├── drugs.py
     ├── diseases.py
     ├── trials.py
@@ -213,7 +211,6 @@ streamlit run app.py
 - Multi-omics integration
 - Protein structure-based analysis
 - Personalized medicine insights
-- LLM-powered biomedical research assistant
 
 ---
 
