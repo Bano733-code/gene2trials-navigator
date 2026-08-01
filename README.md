@@ -1,8 +1,6 @@
 # 🧬 Gene2Trials Navigator
 
-### AI-Powered Gene → Disease → Drug → Clinical Trial Discovery Platform
-
-![Gene2Trials Banner](images/hero_banner.png)
+### Gene → Mutations → Disease → Drug → Clinical Trial Discovery Platform → AI powered Literature Summary
 
 <p align="center">
   <img alt="Python" src="https://img.shields.io/badge/Python-3.9+-blue.svg">
