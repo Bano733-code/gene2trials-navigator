@@ -2,6 +2,8 @@
 
 ### Gene → Mutations → Disease → Drug → Clinical Trial Discovery Platform → AI powered Literature Summary
 
+![Gene2Trials Banner](images/hero_banner.png)
+
 <p align="center">
   <img alt="Python" src="https://img.shields.io/badge/Python-3.9+-blue.svg">
   <img alt="Streamlit" src="https://img.shields.io/badge/Streamlit-App-red.svg">
