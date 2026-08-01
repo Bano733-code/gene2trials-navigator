@@ -48,13 +48,13 @@ AI-Assisted Interpretation
 
 ## 🏗️ System Architecture
 
-![architecture](images/architecture.png)
+![System_Architecture](images/architecture.jpg)
 
 ---
 
 ## ⚙️ Workflow
 
-![workflow](images/workflow.png)
+![Workflow](images/workflow.jpg)
 
 ---
 
