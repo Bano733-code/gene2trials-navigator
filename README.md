@@ -1,94 +1,237 @@
 # 🧬 Gene2Trials Navigator
 
-Gene2Trials Navigator is a **Streamlit web app** that allows users to explore gene-related biomedical knowledge.  
-Given a gene symbol (e.g., **TP53**, **BRCA1**), the app fetches **mutations, diseases, drugs, and clinical trials** from public biomedical APIs and provides **AI-powered summaries**.
+### AI-Powered Gene → Disease → Drug → Clinical Trial Discovery Platform
+
+![Gene2Trials Banner](images/hero_banner.png)
+
+<p align="center">
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.9+-blue.svg">
+  <img alt="Streamlit" src="https://img.shields.io/badge/Streamlit-App-red.svg">
+  <img alt="License" src="https://img.shields.io/badge/License-Academic-lightgrey.svg">
+</p>
 
 ---
 
-## 🚀 Features
-- 🔍 **Gene Mutations**: Extract mutations, CADD scores, and clinical significance using **MyVariant.info** / ClinVar.
-- 🧪 **Associated Diseases**: Discover diseases linked to mutations.
-- 💊 **Drug Information**: Retrieve drug candidates via **ChEMBL**.
-- 📊 **Clinical Trials**: Get live data from **ClinicalTrials.gov**.
-- 📝 **AI Summarization**: Summarize PubMed abstracts with Hugging Face Transformers.
-- ✅ **Clickable Links**: Direct links to variants, drugs, and trial pages.
+## 📌 Overview
+
+**Gene2Trials Navigator** is an AI-powered bioinformatics platform designed to bridge the gap between genomic information and therapeutic discovery.
+
+Given a single gene of interest, the platform integrates multiple biomedical databases to identify:
+
+- 🧬 Gene information
+- 🦠 Associated diseases
+- 💊 Potential drug candidates
+- 🧪 Clinical trial evidence
+- 📚 Supporting biomedical literature
+
+The goal is to accelerate early-stage drug discovery and biomedical research by providing a **unified, single-search, gene-to-therapy exploration workflow**.
 
 ---
 
-## 🛠️ Tech Stack
-- **Languages**: Python
-- **Frameworks**: Streamlit
-- **APIs**:
-  - [MyVariant.info](https://myvariant.info/)
-  - [ChEMBL](https://www.ebi.ac.uk/chembl/)
-  - [ClinicalTrials.gov](https://clinicaltrials.gov/)
-  - [PubMed / Entrez](https://www.ncbi.nlm.nih.gov/)
-- **AI Models**: HuggingFace Transformers
-- **Deployment**: Hugging Face Spaces / GitHub
+## 🔬 Core Concept
+
+```
+Gene
+  ↓
+Disease Association
+  ↓
+Drug Candidates
+  ↓
+Clinical Trials
+  ↓
+Scientific Literature
+  ↓
+AI-Assisted Interpretation
+```
 
 ---
-streamlit run app.py
 
-📝 Usage
-Enter a gene symbol (e.g., TP53).
-Navigate tabs:
-🦠 Mutations
-🧬 Diseases
-💊 Drugs
-📋 Clinical Trials
-📝 Summaries
-Click on IDs to open external references.
+## 🏗️ System Architecture
+
+![System Architecture](images/architecture.png)
+
+---
+
+## ⚙️ Workflow
+
+![Workflow](images/workflow.png)
+
+---
+
+## ✨ Key Features
+
+### 🧬 1. Gene Identification
+
+Accepts a gene symbol (e.g. `TP53`), converts it into an Ensembl identifier, and retrieves biological target information.
+
+**Powered by:** OpenTargets Platform
+
+![Gene Identification Tab](images/gene_tab.png)
+
+---
+
+### 🦠 2. Disease Association Analysis
+
+Identifies diseases associated with the selected gene, along with disease identifiers and association evidence scores.
+
+**Example — TP53:**
+
+```
+TP53
+ → Breast Cancer
+ → Acute Myeloid Leukemia
+ → Glioblastoma
+ → Other cancer-related diseases
+```
+
+![Disease Association Tab](images/diseases.png)
+
+---
+
+### 💊 3. Drug Discovery Module
+
+Retrieves therapeutic candidates linked to the gene via biomedical databases.
+
+```
+Gene
+ ↓
+OpenTargets Drug Associations
+ ↓
+Drug Candidates
+ ↓
+Clinical Development Stage
+```
+
+#### 📊 Drug Discovery Dashboard
+
+![Drug Dashboard](images/drugs.png)
+
+---
+
+### 🧪 4. Clinical Trial Integration
+
+Integrates clinical trial information, including trial identifiers, study phases, trial status, and therapeutic evidence.
+
+**Source:** ClinicalTrials.gov API
+
+![Clinical Trials Tab](images/trials.png)
+
+---
+
+### 🤖 5. AI-Assisted Biomedical Interpretation 
+
+AI research summaries include:
+
+- Biomedical NLP
+- Literature summarization
+- Research evidence explanation
+
+![AI Interpretation Preview](images/ai_summary.png)
+
+---
+
+## 🛠️ Technology Stack
+
+**Programming:** Python
+
+**Bioinformatics:** Computational Biology · Genomics · Drug Discovery · Biomedical Data Analysis
+
+**APIs & Databases**
+
+| Database | Purpose |
+|---|---|
+| OpenTargets | Gene–Disease–Drug associations |
+| ChEMBL | Drug information |
+| ClinicalTrials.gov | Clinical trial evidence |
+| PubMed | Biomedical literature |
+
+**Machine Learning / AI:** NLP · Large Language Models · Biomedical Information Retrieval
+
+**Application Development:** Streamlit · FastAPI · Pandas · Requests
+
+---
 
 ## 📂 Project Structure
 
 ```text
-gene2trials-navigator/
+Gene2Trials/
 │
-├── app.py                         # Main Streamlit application
+├── app.py
+├── requirements.txt
+├── README.md
 │
-├── utils/
-│   ├── mutations.py               # MyVariant & ClinVar mutation retrieval
-│   ├── diseases.py                # Disease association analysis
-│   ├── drugs.py                   # ChEMBL drug information retrieval
-│   ├── trials.py                  # ClinicalTrials.gov trial search
-│   └── summaries.py               # PubMed research paper summarization
+├── images/
+│   ├── hero_banner.png
+│   ├── architecture.png
+│   ├── workflow.png
+│   ├── gene_tab.png
+│   ├── disease.png
+│   ├── drugs.png
+│   ├── trials.png
+│   └── ai_summary.png
 │
-├── requirements.txt               # Python dependencies
-│
-└── README.md                      # Project documentation
+└── utils/
+    ├── drugs.py
+    ├── diseases.py
+    ├── trials.py
+    └── literature.py
 ```
 
-## 🤝 Contributing
+---
 
-Contributions are welcome!  
-
-If you would like to improve Gene2Trials Navigator:
-
-1. Fork the repository
-2. Create a new feature branch
+## 🚀 Installation
 
 ```bash
-git checkout -b feature-name
+# Clone the repository
+git clone https://github.com/Bano733-code/Gene2Trials.git
+
+# Navigate into the project
+cd Gene2Trials
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the application
+streamlit run app.py
 ```
 
-3. Commit your changes
+---
 
-```bash
-git commit -m "Add new feature"
-```
+## 📡 Data Sources
 
-4. Push the branch
+- OpenTargets Platform
+- ChEMBL Database
+- ClinicalTrials.gov
+- PubMed
 
-```bash
-git push origin feature-name
-```
+---
 
-5. Open a Pull Request
+## 🔮 Future Improvements
 
-Please ensure your code follows clean structure and includes proper documentation.
+- AI-based drug ranking system
+- Drug repurposing prediction
+- Multi-omics integration
+- Protein structure-based analysis
+- Personalized medicine insights
+- LLM-powered biomedical research assistant
 
-## 📦 Installation
-```bash
-git clone https://github.com/Bano733-code/gene2trials-navigator.git
-cd gene2trials-navigator
-pip install -r requirements.txt```
+---
+
+## 👩‍💻 Author
+
+**Bano Rani**
+Bioinformatics Student
+
+**Research Interests:** AI for Drug Discovery · Computational Biology · Genomics · Precision Medicine
+
+---
+
+## ⭐ Acknowledgements
+
+This project builds upon open biomedical databases and computational biology resources that enable data-driven therapeutic discovery.
+
+---
+
+## 📜 License
+
+This project is intended for academic and research purposes.
